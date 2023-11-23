@@ -45,4 +45,9 @@ public class TaskCategory {
     public void setName(String name) {
         this.name= name;
     }
+    // public Object getCategoryName() {
+    //     return null;
+    // }
+    // public void setCategoryName(Object categoryName) {
+    // }
 }

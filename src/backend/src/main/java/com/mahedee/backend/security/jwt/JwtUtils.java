@@ -19,7 +19,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-//@Component - Spring will create and manage instances of these classes, and you can use them throughout your application.
+// @Component - Spring will create and manage instances of these classes, and you can use them throughout your application.
 // This class generate token and validate token
 @Component
 public class JwtUtils {

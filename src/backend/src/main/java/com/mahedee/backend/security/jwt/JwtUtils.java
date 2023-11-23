@@ -19,17 +19,27 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+//@Component - Spring will create and manage instances of these classes, and you can use them throughout your application.
+// This class generate token and validate token
 @Component
 public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
+    // @Value - Spring will inject these values from the application's properties file.
     @Value("${mahedee.app.jwtSecret}")
     private String jwtSecret;
 
     @Value("${mahedee.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    
+    /**
+     * Generates a JWT token for the given authentication.
+     *
+     * @param authentication the authentication object
+     * @return the generated JWT token
+     */
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
@@ -41,6 +51,7 @@ public class JwtUtils {
                 .compact();
     }
 
+    // This method generates a key for HMAC-SHA (Hash-based Message Authentication Code - Secure Hash Algorithm) using the provided byte array.
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
@@ -50,6 +61,12 @@ public class JwtUtils {
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
+    /**
+     * Validates a JWT token.
+     *
+     * @param authToken The JWT token to be validated.
+     * @return true if the token is valid, false otherwise.
+     */
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);

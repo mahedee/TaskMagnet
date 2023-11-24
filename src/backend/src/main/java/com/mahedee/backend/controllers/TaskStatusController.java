@@ -3,6 +3,7 @@ package com.mahedee.backend.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,6 +57,7 @@ public class TaskStatusController {
     }
 
     @DeleteMapping("/delete/{taskStatusId}")
+    //@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public String deleteTaskStatus(Long taskStatusId) {
         return taskStatusRepository.findById(taskStatusId)
                 .map(taskStatus -> {
@@ -64,4 +66,10 @@ public class TaskStatusController {
                 })
                 .orElseThrow(() -> new RuntimeException("Error: Task Status is not found."));
     }
+
+    // @GetMapping("/admin")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public String adminAccess() {
+    //     return "Admin Board.";
+    // }
 }

@@ -91,7 +91,8 @@ public class WebSecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
+                // permit all for auth controller. i.e pattern /api/auth/
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll() 
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/v3/api-docs/**",
                                 "/swagger-ui/**",

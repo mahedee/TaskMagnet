@@ -32,6 +32,7 @@ public class TaskStatusController {
     // we will get the list of all task status.
 
     @GetMapping("/all")
+    //@PreAuthorize("permitAll()")
     public List<TaskStatus> getAllTaskStatus() {
         return taskStatusRepository.findAll();
     }

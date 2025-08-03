@@ -30,9 +30,9 @@ Task Magnet is a full-stack project management and issue tracking application de
 *⭐ Watch this repo for feature updates!*
 
 ## 🏗️ System Architecture
+🚧 **Under Development** 
 > 🔄 Documentation in progress
 *👀 Detailed architecture diagrams and documentation coming soon! Watch this repo for updates!*
-
 
 ### How to run the application
 * Run MySQL using XAMPP

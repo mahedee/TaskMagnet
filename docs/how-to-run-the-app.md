@@ -159,7 +159,7 @@ Once the application is running, you can access:
 
 #### Swagger API Documentation
 ```
-URL: http://localhost:8080/swagger-ui.html
+URL: http://localhost:8080/swagger-ui/index.html
 Purpose: Interactive API documentation and testing
 Authentication: No authentication required
 ```

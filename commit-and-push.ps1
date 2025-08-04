@@ -10,10 +10,21 @@ Write-Host ""
 
 # Get current date and time
 $currentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-$commitMessage = "Commit everything at $currentDateTime"
+$defaultMessage = "feat: Complete TASK-P1-005 Task Management UI with kanban board and full CRUD operations - $currentDateTime"
 
 Write-Host "Current Date/Time: $currentDateTime" -ForegroundColor Yellow
-Write-Host "Commit Message: $commitMessage" -ForegroundColor Yellow
+Write-Host "Default Commit Message: $defaultMessage" -ForegroundColor Yellow
+Write-Host ""
+
+# Allow user to customize commit message
+$userMessage = Read-Host "Enter custom commit message (or press Enter to use default)"
+if ([string]::IsNullOrWhiteSpace($userMessage)) {
+    $commitMessage = $defaultMessage
+} else {
+    $commitMessage = $userMessage
+}
+
+Write-Host "Final Commit Message: $commitMessage" -ForegroundColor Yellow
 Write-Host ""
 
 # Check if we're in a git repository

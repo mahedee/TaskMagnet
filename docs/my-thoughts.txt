@@ -1,0 +1,13 @@
+✅ COMPLETED: Create a powershell and shell scripts to run the backend appliation
+	- Created run-app.ps1 (PowerShell with full features)
+	- Created run-app.sh (Cross-platform shell script)
+	- Created run-app.bat (Windows batch script)
+	- Created start.ps1 (Quick start script)
+	- Created RUN-SCRIPTS-README.md (Comprehensive documentation)
+	• Front end application design document - intially it will connect to a json and should have capability to insert and update. After that we will change the repository to api end point. - Release 1 and Phase - 1
+	• Implement most popular logging framework
+	• Now implement backend such a way so that we can work on front end without the backend there should not be dependency on backend for front end.
+	• Tools and technologies used, os, development environment, deployment environment etc.
+Master branch, dev branch and protected branch
+- prepare environment related file - dev and prod
+- create a powershell and a shell script to run the front end application

@@ -1,22 +1,61 @@
-# TaskMagnet Application Runner Scripts
+# 🚀 TaskMagnet Runner Scripts - Updated Guide
 
-This directory contains several scripts to easily run the TaskMagnet Spring Boot application across different platforms and preferences.
+This directory contains various scripts to run the TaskMagnet application stack. Choose the appropriate script based on your needs.
 
-## Available Scripts
+## 📋 Available Scripts
 
-### 1. PowerShell Script (Recommended for Windows)
-**File:** `run-app.ps1`
+### Backend Only
+- `run-app.bat` - Windows Batch script for backend
+- `run-app.ps1` - PowerShell script for backend  
+- `run-app.sh` - Bash script for backend (Linux/macOS)
 
-The most feature-rich script with comprehensive error handling, validation, and configuration options.
+### Frontend Only  
+- `run-frontend.bat` - Windows Batch script for frontend
+- `run-frontend.ps1` - PowerShell script for frontend
+- `run-frontend.sh` - Bash script for frontend
 
-#### Features:
-- ✅ Comprehensive error checking and validation
-- ✅ Configurable port and Spring profiles
-- ✅ Clean build and test skipping options
-- ✅ Port availability checking
-- ✅ Colored output and user-friendly messages
-- ✅ Help documentation built-in
-- ✅ URL display for easy access
+### Full Stack (Both Backend + Frontend)
+- `run-fullstack.bat` - Windows Batch script for both servers
+- `run-fullstack.ps1` - PowerShell script for both servers
+
+## 🎯 Quick Start
+
+### Option 1: Run Full Stack (Recommended)
+```bash
+# Windows Command Prompt
+run-fullstack.bat
+
+# PowerShell  
+.\run-fullstack.ps1
+
+# This will start both:
+# - Backend API on http://localhost:8081
+# - Frontend UI on http://localhost:3000
+```
+
+### Option 2: Run Servers Separately
+
+**Backend Server:**
+```bash
+# Windows Command Prompt
+run-app.bat
+
+# PowerShell
+.\run-app.ps1
+
+# Backend will be available at http://localhost:8081
+```
+
+**Frontend Server:**
+```bash
+# Windows Command Prompt  
+run-frontend.bat
+
+# PowerShell
+.\run-frontend.ps1
+
+# Frontend will be available at http://localhost:3000
+```
 
 #### Usage:
 ```powershell

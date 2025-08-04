@@ -1,24 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import Navigation from './components/Navigation';
+import Dashboard from './components/Dashboard';
+import ProjectManager from './components/ProjectManager';
+import TaskManager from './components/TaskManager';
 import './App.css';
 
 function App() {
+  const [currentView, setCurrentView] = useState('dashboard');
+
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'projects':
+        return <ProjectManager />;
+      case 'tasks':
+        return <TaskManager />;
+      case 'categories':
+        return (
+          <div className="coming-soon">
+            <h2>Category Manager</h2>
+            <p>Category management interface coming soon!</p>
+          </div>
+        );
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navigation currentView={currentView} onViewChange={setCurrentView} />
+      <main className="main-content">
+        {renderCurrentView()}
+      </main>
     </div>
   );
 }

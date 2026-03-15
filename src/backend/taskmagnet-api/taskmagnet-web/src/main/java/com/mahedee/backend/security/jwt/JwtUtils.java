@@ -1,7 +1,8 @@
 package com.mahedee.backend.security.jwt;
 
-import java.security.Key;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import com.mahedee.backend.security.services.UserDetailsImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -111,11 +111,11 @@ public class JwtUtils {
 
         // Build and return JWT token with user claims and signature
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))           // Set username as subject
-                .setIssuedAt(new Date())                             // Set current timestamp
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)) // Set expiration
-                .signWith(key(), SignatureAlgorithm.HS256)           // Sign with HMAC-SHA256
-                .compact();                                          // Generate compact token string
+                .subject(userPrincipal.getUsername())                        // Set username as subject
+                .issuedAt(new Date())                                        // Set current timestamp
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs)) // Set expiration
+                .signWith(key())                                             // Sign with HMAC-SHA256
+                .compact();                                                  // Generate compact token string
     }
 
     /**
@@ -137,7 +137,7 @@ public class JwtUtils {
      * 
      * @return HMAC-SHA256 Key instance for JWT signing and verification
      */
-    private Key key() {
+    private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
@@ -162,11 +162,11 @@ public class JwtUtils {
      * @throws JwtException if token is invalid, expired, or malformed
      */
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key())                               // Set verification key
+        return Jwts.parser()
+                .verifyWith(key())                                  // Set verification key
                 .build()                                            // Build parser
-                .parseClaimsJws(token)                             // Parse and verify token
-                .getBody()                                         // Get claims body
+                .parseSignedClaims(token)                          // Parse and verify token
+                .getPayload()                                      // Get claims payload
                 .getSubject();                                     // Extract subject (username)
     }
 
@@ -203,10 +203,10 @@ public class JwtUtils {
     public boolean validateJwtToken(String authToken) {
         try {
             // Attempt to parse and verify the token
-            Jwts.parserBuilder()
-                .setSigningKey(key())                               // Set verification key
+            Jwts.parser()
+                .verifyWith(key())                                  // Set verification key
                 .build()                                            // Build parser instance
-                .parse(authToken);                                  // Parse and validate token
+                .parseSignedClaims(authToken);                     // Parse and validate token
             
             return true; // Token is valid
             

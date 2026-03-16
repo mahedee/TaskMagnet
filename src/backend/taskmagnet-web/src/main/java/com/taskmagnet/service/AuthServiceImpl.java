@@ -72,7 +72,7 @@ public class AuthServiceImpl implements IAuthService {
         userRepository.save(user);
 
         String token = jwtTokenProvider.generateTokenFromUsername(user.getUsername());
-        return buildResponse(token, user.getUsername(), user.getEmail(),
+        return buildResponse(token, user.getId(), user.getUsername(), user.getEmail(),
                 user.getFullName(), Set.of(RoleName.ROLE_VIEWER.name()));
     }
 
@@ -106,12 +106,13 @@ public class AuthServiceImpl implements IAuthService {
                 .collect(Collectors.toSet());
 
         User user = userRepository.findByUsername(username).orElseThrow();
-        return buildResponse(token, username, user.getEmail(), user.getFullName(), roles);
+        return buildResponse(token, user.getId(), username, user.getEmail(), user.getFullName(), roles);
     }
 
-    private AuthResponse buildResponse(String token, String username, String email,
+    private AuthResponse buildResponse(String token, Long userId, String username, String email,
                                        String fullName, Set<String> roles) {
         AuthResponse response = new AuthResponse();
+        response.setId(userId);
         response.setToken(token);
         response.setTokenType("Bearer");
         response.setExpiresIn(jwtTokenProvider.getExpirationMs());

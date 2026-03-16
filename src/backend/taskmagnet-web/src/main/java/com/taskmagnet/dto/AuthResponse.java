@@ -4,6 +4,7 @@ import java.util.Set;
 
 public class AuthResponse {
 
+    private Long id;
     private String token;
     private String tokenType = "Bearer";
     private long expiresIn;
@@ -11,6 +12,9 @@ public class AuthResponse {
     private String email;
     private String fullName;
     private Set<String> roles;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }

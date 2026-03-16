@@ -1,25 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { jsonRepository } from '../services/jsonRepository';
-import { Project, Category, CreateProjectRequest, UpdateProjectRequest } from '../types';
+import { projectService } from '../services/projectService';
+import { categoryService } from '../services/categoryService';
+import { useAuth } from '../contexts/AuthContext';
+import { ProjectResponse, CategoryResponse, ProjectRequest, ProjectStatus } from '../types';
 import './ProjectManager.css';
 
+const STATUS_COLORS: Record<string, string> = {
+  PLANNING: '#95a5a6',
+  ACTIVE: '#3498db',
+  COMPLETED: '#27ae60',
+  ON_HOLD: '#f39c12',
+  CANCELLED: '#e74c3c',
+  ARCHIVED: '#7f8c8d',
+};
+
+const EMPTY_FORM = (ownerId: number): ProjectRequest => ({
+  name: '',
+  code: '',
+  description: '',
+  startDate: '',
+  endDate: '',
+  status: 'PLANNING',
+  ownerId,
+});
+
 const ProjectManager: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { user } = useAuth();
+  const [projects, setProjects] = useState<ProjectResponse[]>([]);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-
-  // Form state
-  const [formData, setFormData] = useState<CreateProjectRequest>({
-    name: '',
-    description: '',
-    startDate: '',
-    endDate: '',
-    status: 'PLANNING',
-    priority: 'MEDIUM',
-    categoryId: ''
-  });
+  const [editingProject, setEditingProject] = useState<ProjectResponse | null>(null);
+  const [formData, setFormData] = useState<ProjectRequest>(EMPTY_FORM(0));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadData();
@@ -29,13 +43,13 @@ const ProjectManager: React.FC = () => {
     try {
       setLoading(true);
       const [projectsData, categoriesData] = await Promise.all([
-        jsonRepository.getProjects(),
-        jsonRepository.getCategories()
+        projectService.getAll(),
+        categoryService.getAll(),
       ]);
       setProjects(projectsData);
       setCategories(categoriesData);
-    } catch (error) {
-      console.error('Error loading data:', error);
+    } catch (err) {
+      console.error('Error loading data:', err);
     } finally {
       setLoading(false);
     }
@@ -43,88 +57,66 @@ const ProjectManager: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setSaving(true);
     try {
+      const payload: ProjectRequest = { ...formData, ownerId: user!.id };
       if (editingProject) {
-        const updateRequest: UpdateProjectRequest = {
-          id: editingProject.id,
-          ...formData
-        };
-        await jsonRepository.updateProject(updateRequest);
+        await projectService.update(editingProject.id, payload);
       } else {
-        await jsonRepository.createProject(formData, '1'); // Mock user ID
+        await projectService.create(payload);
       }
-      
       await loadData();
       resetForm();
-    } catch (error) {
-      console.error('Error saving project:', error);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Failed to save project.';
+      setError(msg);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleEdit = (project: Project) => {
+  const handleEdit = (project: ProjectResponse) => {
     setEditingProject(project);
     setFormData({
       name: project.name,
-      description: project.description || '',
-      startDate: project.startDate || '',
-      endDate: project.endDate || '',
+      code: project.code,
+      description: project.description ?? '',
+      startDate: project.startDate ?? '',
+      endDate: project.endDate ?? '',
       status: project.status,
-      priority: project.priority,
-      categoryId: project.categoryId || ''
+      ownerId: project.ownerId,
+      categoryId: project.categoryId,
     });
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      try {
-        await jsonRepository.deleteProject(id);
-        await loadData();
-      } catch (error) {
-        console.error('Error deleting project:', error);
-      }
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    try {
+      await projectService.delete(id);
+      await loadData();
+    } catch (err) {
+      console.error('Error deleting project:', err);
     }
   };
 
   const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      startDate: '',
-      endDate: '',
-      status: 'PLANNING',
-      priority: 'MEDIUM',
-      categoryId: ''
-    });
+    setFormData(EMPTY_FORM(user?.id ?? 0));
     setEditingProject(null);
     setShowForm(false);
+    setError('');
   };
 
   const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'COMPLETED': return '#27ae60';
-      case 'IN_PROGRESS': return '#3498db';
-      case 'PLANNING': return '#95a5a6';
-      case 'ON_HOLD': return '#f39c12';
-      case 'CANCELLED': return '#e74c3c';
-      default: return '#95a5a6';
-    }
+    return STATUS_COLORS[status] ?? '#95a5a6';
   };
 
-  const getPriorityColor = (priority: string): string => {
-    switch (priority) {
-      case 'URGENT': return '#e74c3c';
-      case 'HIGH': return '#f39c12';
-      case 'MEDIUM': return '#3498db';
-      case 'LOW': return '#27ae60';
-      default: return '#95a5a6';
-    }
-  };
-
-  const getCategoryName = (categoryId?: string): string => {
+  const getCategoryName = (categoryId?: number): string => {
     if (!categoryId) return 'No Category';
-    const category = categories.find(c => c.id === categoryId);
-    return category?.name || 'Unknown Category';
+    return categories.find(c => c.id === categoryId)?.name ?? 'Unknown Category';
   };
 
   if (loading) {
@@ -162,6 +154,7 @@ const ProjectManager: React.FC = () => {
             </div>
             
             <form onSubmit={handleSubmit} className="project-form">
+              {error && <div className="form-error">{error}</div>}
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Project Name *</label>
@@ -174,18 +167,49 @@ const ProjectManager: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
+                  <label className="form-label">Project Code * (2–20 chars)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.code}
+                    onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
+                    required
+                    minLength={2}
+                    maxLength={20}
+                    placeholder="e.g. PROJ-01"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
                   <label className="form-label">Category</label>
                   <select
                     className="form-control"
-                    value={formData.categoryId}
-                    onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+                    value={formData.categoryId ?? ''}
+                    onChange={(e) => setFormData({...formData, categoryId: e.target.value ? Number(e.target.value) : undefined})}
                   >
-                    <option value="">Select Category</option>
+                    <option value="">No Category</option>
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
                     ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Status</label>
+                  <select
+                    className="form-control"
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value as ProjectStatus})}
+                  >
+                    <option value="PLANNING">Planning</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="ON_HOLD">On Hold</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                    <option value="ARCHIVED">Archived</option>
                   </select>
                 </div>
               </div>
@@ -221,42 +245,12 @@ const ProjectManager: React.FC = () => {
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Status</label>
-                  <select
-                    className="form-control"
-                    value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value as any})}
-                  >
-                    <option value="PLANNING">Planning</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="ON_HOLD">On Hold</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Priority</label>
-                  <select
-                    className="form-control"
-                    value={formData.priority}
-                    onChange={(e) => setFormData({...formData, priority: e.target.value as any})}
-                  >
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="URGENT">Urgent</option>
-                  </select>
-                </div>
-              </div>
-
               <div className="form-actions">
                 <button type="button" className="btn btn-secondary" onClick={resetForm}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingProject ? 'Update Project' : 'Create Project'}
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? 'Saving...' : editingProject ? 'Update Project' : 'Create Project'}
                 </button>
               </div>
             </form>
@@ -274,7 +268,10 @@ const ProjectManager: React.FC = () => {
           projects.map(project => (
             <div key={project.id} className="project-card">
               <div className="project-card-header">
-                <h3>{project.name}</h3>
+                <div>
+                  <h3>{project.name}</h3>
+                  <span className="project-code">[{project.code}]</span>
+                </div>
                 <div className="project-actions">
                   <button 
                     className="btn-icon"
@@ -294,11 +291,19 @@ const ProjectManager: React.FC = () => {
               </div>
               
               <div className="project-card-body">
-                <p className="project-description">{project.description}</p>
+                {project.description && (
+                  <p className="project-description">{project.description}</p>
+                )}
                 
                 <div className="project-meta">
                   <div className="meta-item">
+                    <strong>Code:</strong> {project.code}
+                  </div>
+                  <div className="meta-item">
                     <strong>Category:</strong> {getCategoryName(project.categoryId)}
+                  </div>
+                  <div className="meta-item">
+                    <strong>Owner:</strong> {project.ownerUsername}
                   </div>
                   {project.startDate && (
                     <div className="meta-item">
@@ -317,13 +322,7 @@ const ProjectManager: React.FC = () => {
                     className="status-badge" 
                     style={{ backgroundColor: getStatusColor(project.status) }}
                   >
-                    {project.status.replace('_', ' ')}
-                  </span>
-                  <span 
-                    className="priority-badge" 
-                    style={{ backgroundColor: getPriorityColor(project.priority) }}
-                  >
-                    {project.priority}
+                    {project.status.replace(/_/g, ' ')}
                   </span>
                 </div>
               </div>

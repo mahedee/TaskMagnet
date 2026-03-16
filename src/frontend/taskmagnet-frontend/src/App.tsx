@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import ProjectManager from './components/ProjectManager';
 import TaskManager from './components/TaskManager';
+import CategoryManager from './components/CategoryManager';
 import './App.css';
 
-function App() {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const AppLayout: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
 
   const renderCurrentView = () => {
@@ -17,12 +27,7 @@ function App() {
       case 'tasks':
         return <TaskManager />;
       case 'categories':
-        return (
-          <div className="coming-soon">
-            <h2>Category Manager</h2>
-            <p>Category management interface coming soon!</p>
-          </div>
-        );
+        return <CategoryManager />;
       default:
         return <Dashboard />;
     }
@@ -35,6 +40,27 @@ function App() {
         {renderCurrentView()}
       </main>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

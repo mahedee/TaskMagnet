@@ -1,128 +1,158 @@
-// Core Types for TaskMagnet Frontend
-export interface User {
-  id: string;
+// ─── Enums (matching backend exactly) ──────────────────────────────────────
+
+export type ProjectStatus = 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED';
+export type TaskStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'IN_REVIEW' | 'ON_HOLD' | 'COMPLETED' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | 'CRITICAL';
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+export interface AuthResponse {
+  id: number;
+  token: string;
+  tokenType: string;
+  expiresIn: number;
+  username: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+}
+
+export interface LoginRequest {
+  usernameOrEmail: string;
+  password: string;
+}
+
+export interface SignupRequest {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  department?: string;
+  jobTitle?: string;
+}
+
+// ─── User ────────────────────────────────────────────────────────────────────
+
+export interface UserResponse {
+  id: number;
   username: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: 'USER' | 'ADMIN';
+  fullName: string;
+  phoneNumber?: string;
+  department?: string;
+  jobTitle?: string;
+  isEmailVerified: boolean;
   isActive: boolean;
+  lastLoginDate?: string;
+  roles: string[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Category {
-  id: string;
+// ─── Category ────────────────────────────────────────────────────────────────
+
+export interface CategoryResponse {
+  id: number;
   name: string;
   description?: string;
-  color: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Project {
-  id: string;
+export interface CategoryRequest {
   name: string;
   description?: string;
+}
+
+// ─── Project ─────────────────────────────────────────────────────────────────
+
+export interface ProjectResponse {
+  id: number;
+  name: string;
+  code: string;
+  description?: string;
+  status: ProjectStatus;
   startDate?: string;
   endDate?: string;
-  status: 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED' | 'ON_HOLD' | 'CANCELLED';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  ownerId: string;
-  categoryId?: string;
+  targetCompletionDate?: string;
+  actualCompletionDate?: string;
+  budget?: number;
+  colorCode?: string;
+  progressPercentage?: number;
+  ownerId: number;
+  ownerUsername: string;
+  categoryId?: number;
+  categoryName?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Task {
-  id: string;
+export interface ProjectRequest {
+  name: string;
+  code: string;
+  description?: string;
+  status?: ProjectStatus;
+  startDate?: string;
+  endDate?: string;
+  targetCompletionDate?: string;
+  budget?: number;
+  colorCode?: string;
+  ownerId: number;
+  categoryId?: number;
+}
+
+// ─── Task ─────────────────────────────────────────────────────────────────────
+
+export interface TaskResponse {
+  id: number;
   title: string;
   description?: string;
+  status: TaskStatus;
+  priority: Priority;
   dueDate?: string;
-  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  projectId: string;
-  assigneeId?: string;
-  categoryId?: string;
+  startDate?: string;
+  completionDate?: string;
   estimatedHours?: number;
   actualHours?: number;
+  progressPercentage?: number;
+  notes?: string;
+  tags?: string;
+  isBillable?: boolean;
+  assignedToId?: number;
+  assignedToUsername?: string;
+  createdById: number;
+  createdByUsername: string;
+  projectId?: number;
+  projectName?: string;
+  categoryId?: number;
+  categoryName?: string;
+  parentTaskId?: number;
+  parentTaskTitle?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface TaskComment {
-  id: string;
-  taskId: string;
-  userId: string;
-  comment: string;
-  createdAt: string;
-}
-
-export interface TaskAttachment {
-  id: string;
-  taskId: string;
-  fileName: string;
-  filePath: string;
-  fileSize: number;
-  uploadedBy: string;
-  uploadedAt: string;
-}
-
-// Request/Response types
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  success: boolean;
-}
-
-export interface PaginatedResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-}
-
-// Form types for creating/updating entities
-export interface CreateProjectRequest {
-  name: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  status: Project['status'];
-  priority: Project['priority'];
-  categoryId?: string;
-}
-
-export interface UpdateProjectRequest extends Partial<CreateProjectRequest> {
-  id: string;
-}
-
-export interface CreateTaskRequest {
+export interface TaskRequest {
   title: string;
   description?: string;
+  status?: TaskStatus;
+  priority?: Priority;
   dueDate?: string;
-  status: Task['status'];
-  priority: Task['priority'];
-  projectId: string;
-  assigneeId?: string;
-  categoryId?: string;
+  startDate?: string;
   estimatedHours?: number;
+  notes?: string;
+  tags?: string;
+  isBillable?: boolean;
+  assignedToId?: number;
+  createdById: number;
+  projectId?: number;
+  categoryId?: number;
+  parentTaskId?: number;
 }
 
-export interface UpdateTaskRequest extends Partial<CreateTaskRequest> {
-  id: string;
-}
-
-export interface CreateCategoryRequest {
-  name: string;
-  description?: string;
-  color: string;
-}
-
-export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
-  id: string;
-}

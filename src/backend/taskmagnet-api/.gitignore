@@ -1,9 +1,0 @@
-# ================================
-# Backend-specific overrides
-# ================================
-
-# This file inherits from the main project .gitignore
-# Add backend-specific ignores here if needed
-
-# Local backend development files
-application-local.properties

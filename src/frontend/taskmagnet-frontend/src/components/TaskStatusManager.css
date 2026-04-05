@@ -1,0 +1,370 @@
+/* ── Task Status Manager ──────────────────────────────────────────── */
+.task-status-manager {
+  padding: 2rem;
+  max-width: 1200px;
+}
+
+.task-status-manager-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+  color: #6c757d;
+}
+
+/* Header */
+.task-status-manager-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.task-status-manager-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.task-status-subtitle {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Toolbar */
+.task-status-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.project-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 250px;
+}
+
+.project-select {
+  min-width: 250px;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.task-status-count {
+  color: #6c757d;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+/* List View */
+.task-status-list {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.task-status-list-header {
+  display: grid;
+  grid-template-columns: 50px 1.5fr 2fr 120px 80px 100px 100px;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.task-status-list-item {
+  display: grid;
+  grid-template-columns: 50px 1.5fr 2fr 120px 80px 100px 100px;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s;
+  align-items: center;
+}
+
+.task-status-list-item:last-child {
+  border-bottom: none;
+}
+
+.task-status-list-item:hover {
+  background: #f8fafc;
+}
+
+.task-status-list-col {
+  display: flex;
+  align-items: center;
+}
+
+.task-status-list-col--icon {
+  justify-content: center;
+}
+
+.task-status-icon {
+  font-size: 1.5rem;
+}
+
+.task-status-list-col--name .task-status-name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-status-list-col--description .task-status-description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6c757d;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-status-list-col--description .text-muted {
+  font-style: italic;
+  color: #9ca3af;
+}
+
+/* Color Indicator */
+.color-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.color-code {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-family: monospace;
+}
+
+/* Order Badge */
+.order-badge {
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Type Badge */
+.type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.type-badge.open {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.type-badge.closed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.task-status-list-col--actions {
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Form Styles */
+.task-status-form {
+  padding: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.color-input {
+  height: 40px;
+  padding: 0;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Empty state */
+.task-status-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  text-align: center;
+  gap: 0.75rem;
+  color: #6c757d;
+}
+
+.empty-icon {
+  font-size: 3rem;
+}
+
+.task-status-empty h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.task-status-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Modal */
+.modal--sm {
+  max-width: 500px !important;
+}
+
+/* Shared form elements */
+.form-control {
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.35rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.form-error {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.btn-icon:hover {
+  background: #f3f4f6;
+}
+
+.btn-icon--danger:hover {
+  background: #fee2e2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .task-status-list-header,
+  .task-status-list-item {
+    grid-template-columns: 40px 1fr 80px;
+    gap: 0.75rem;
+  }
+  
+  .task-status-list-col--description,
+  .task-status-list-col--color,
+  .task-status-list-col--order,
+  .task-status-list-col--type {
+    display: none;
+  }
+  
+  .task-status-list-col--actions {
+    gap: 0.25rem;
+  }
+  
+  .task-status-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .project-selector,
+  .search-input {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

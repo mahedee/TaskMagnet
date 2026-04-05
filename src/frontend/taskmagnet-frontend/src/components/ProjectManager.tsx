@@ -258,21 +258,73 @@ const ProjectManager: React.FC = () => {
         </div>
       )}
 
-      <div className="projects-grid">
+      <div className="projects-list">
         {projects.length === 0 ? (
           <div className="no-projects">
+            <span className="empty-icon">📁</span>
             <h3>No projects found</h3>
             <p>Create your first project to get started!</p>
+            <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+              + New Project
+            </button>
           </div>
         ) : (
-          projects.map(project => (
-            <div key={project.id} className="project-card">
-              <div className="project-card-header">
-                <div>
-                  <h3>{project.name}</h3>
-                  <span className="project-code">[{project.code}]</span>
+          <div className="project-list">
+            <div className="project-list-header">
+              <div className="project-list-col project-list-col--icon"></div>
+              <div className="project-list-col project-list-col--name">Project</div>
+              <div className="project-list-col project-list-col--category">Category</div>
+              <div className="project-list-col project-list-col--owner">Owner</div>
+              <div className="project-list-col project-list-col--status">Status</div>
+              <div className="project-list-col project-list-col--dates">Timeline</div>
+              <div className="project-list-col project-list-col--actions">Actions</div>
+            </div>
+            {projects.map(project => (
+              <div key={project.id} className="project-list-item">
+                <div className="project-list-col project-list-col--icon">
+                  <span className="project-icon">📁</span>
                 </div>
-                <div className="project-actions">
+                <div className="project-list-col project-list-col--name">
+                  <div className="project-name-info">
+                    <h3 className="project-name">{project.name}</h3>
+                    <span className="project-code">[{project.code}]</span>
+                    {project.description && (
+                      <p className="project-description">{project.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="project-list-col project-list-col--category">
+                  <span className="project-category">{getCategoryName(project.categoryId)}</span>
+                </div>
+                <div className="project-list-col project-list-col--owner">
+                  <span className="project-owner">{project.ownerUsername}</span>
+                </div>
+                <div className="project-list-col project-list-col--status">
+                  <span 
+                    className="status-badge" 
+                    style={{ backgroundColor: getStatusColor(project.status) }}
+                  >
+                    {project.status.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <div className="project-list-col project-list-col--dates">
+                  <div className="project-timeline">
+                    {project.startDate && (
+                      <div className="timeline-item">
+                        <small>Start: {new Date(project.startDate).toLocaleDateString()}</small>
+                      </div>
+                    )}
+                    {project.endDate && (
+                      <div className="timeline-item">
+                        <small>End: {new Date(project.endDate).toLocaleDateString()}</small>
+                      </div>
+                    )}
+                    {!project.startDate && !project.endDate && (
+                      <span className="text-muted">No timeline</span>
+                    )}
+                  </div>
+                </div>
+                <div className="project-list-col project-list-col--actions">
                   <button 
                     className="btn-icon"
                     onClick={() => handleEdit(project)}
@@ -281,7 +333,7 @@ const ProjectManager: React.FC = () => {
                     ✏️
                   </button>
                   <button 
-                    className="btn-icon"
+                    className="btn-icon btn-icon--danger"
                     onClick={() => handleDelete(project.id)}
                     title="Delete"
                   >
@@ -289,45 +341,8 @@ const ProjectManager: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
-              <div className="project-card-body">
-                {project.description && (
-                  <p className="project-description">{project.description}</p>
-                )}
-                
-                <div className="project-meta">
-                  <div className="meta-item">
-                    <strong>Code:</strong> {project.code}
-                  </div>
-                  <div className="meta-item">
-                    <strong>Category:</strong> {getCategoryName(project.categoryId)}
-                  </div>
-                  <div className="meta-item">
-                    <strong>Owner:</strong> {project.ownerUsername}
-                  </div>
-                  {project.startDate && (
-                    <div className="meta-item">
-                      <strong>Start:</strong> {new Date(project.startDate).toLocaleDateString()}
-                    </div>
-                  )}
-                  {project.endDate && (
-                    <div className="meta-item">
-                      <strong>End:</strong> {new Date(project.endDate).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="project-badges">
-                  <span 
-                    className="status-badge" 
-                    style={{ backgroundColor: getStatusColor(project.status) }}
-                  >
-                    {project.status.replace(/_/g, ' ')}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </div>

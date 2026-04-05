@@ -106,6 +106,32 @@ export interface ProjectRequest {
   categoryId?: number;
 }
 
+// ─── Task Status ──────────────────────────────────────────────────────────────
+
+export interface TaskStatusResponse {
+  id: number;
+  name: string;
+  description?: string;
+  color?: string;
+  orderIndex?: number;
+  isClosedStatus?: boolean;
+  projectId: number;
+  projectName?: string;
+  isActive: boolean;
+  createdByUsername?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskStatusRequest {
+  name: string;
+  description?: string;
+  color?: string;
+  orderIndex?: number;
+  isClosedStatus?: boolean;
+  projectId: number;
+}
+
 // ─── Task ─────────────────────────────────────────────────────────────────────
 
 export interface TaskResponse {

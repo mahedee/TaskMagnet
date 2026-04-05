@@ -179,22 +179,33 @@ const CategoryManager: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="category-grid">
+        <div className="category-list">
+          <div className="category-list-header">
+            <div className="category-list-col category-list-col--icon"></div>
+            <div className="category-list-col category-list-col--name">Name</div>
+            <div className="category-list-col category-list-col--description">Description</div>
+            <div className="category-list-col category-list-col--date">Created</div>
+            <div className="category-list-col category-list-col--actions">Actions</div>
+          </div>
           {filtered.map(cat => (
-            <div key={cat.id} className="category-card">
-              <div className="category-card-icon">🏷️</div>
-              <div className="category-card-body">
-                <h3 className="category-name">{cat.name}</h3>
-                {cat.description && (
-                  <p className="category-description">{cat.description}</p>
-                )}
-                <div className="category-meta">
-                  <span className="category-date">
-                    Created {new Date(cat.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
+            <div key={cat.id} className="category-list-item">
+              <div className="category-list-col category-list-col--icon">
+                <span className="category-icon">🏷️</span>
               </div>
-              <div className="category-card-actions">
+              <div className="category-list-col category-list-col--name">
+                <h3 className="category-name">{cat.name}</h3>
+              </div>
+              <div className="category-list-col category-list-col--description">
+                <p className="category-description">
+                  {cat.description || <span className="text-muted">No description</span>}
+                </p>
+              </div>
+              <div className="category-list-col category-list-col--date">
+                <span className="category-date">
+                  {new Date(cat.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="category-list-col category-list-col--actions">
                 <button className="btn-icon" onClick={() => handleEdit(cat)} title="Edit">✏️</button>
                 <button className="btn-icon btn-icon--danger" onClick={() => handleDelete(cat.id)} title="Delete">🗑️</button>
               </div>

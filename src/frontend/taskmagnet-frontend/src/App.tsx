@@ -7,6 +7,7 @@ import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import ProjectManager from './components/ProjectManager';
 import TaskManager from './components/TaskManager';
+import TaskStatusManager from './components/TaskStatusManager';
 import CategoryManager from './components/CategoryManager';
 import './App.css';
 
@@ -26,6 +27,8 @@ const AppLayout: React.FC = () => {
         return <ProjectManager />;
       case 'tasks':
         return <TaskManager />;
+      case 'task-statuses':
+        return <TaskStatusManager />;
       case 'categories':
         return <CategoryManager />;
       default:

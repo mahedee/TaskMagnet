@@ -1,14 +1,14 @@
-import axios from 'axios';
+import api from './api';
 import { AuthResponse, LoginRequest, SignupRequest } from '../types';
 
 export const authService = {
   login: async (req: LoginRequest): Promise<AuthResponse> => {
-    const response = await axios.post<AuthResponse>('/api/auth/login', req);
+    const response = await api.post<AuthResponse>('/auth/login', req);
     return response.data;
   },
 
   signup: async (req: SignupRequest): Promise<AuthResponse> => {
-    const response = await axios.post<AuthResponse>('/api/auth/signup', req);
+    const response = await api.post<AuthResponse>('/auth/signup', req);
     return response.data;
   },
 };

@@ -11,14 +11,22 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Debug: Track component state changes
+  console.log('LoginPage render:', { formData, error, loading });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login form submitted with:', formData);
     setError('');
     setLoading(true);
     try {
+      console.log('Calling login function...');
       await login(formData);
-      navigate('/');
+      console.log('Login function completed, navigating to dashboard');
+      navigate('/', { replace: true });
+      console.log('Navigation completed');
     } catch (err: unknown) {
+      console.log('Login failed with error:', err);
       const msg =
         (err as { response?: { data?: { message?: string; error?: string } } })?.response?.data
           ?.message ||

@@ -41,6 +41,7 @@ public class TaskRequest {
     private Long projectId;
     private Long categoryId;
     private Long parentTaskId;
+    private Long sprintId;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -92,4 +93,7 @@ public class TaskRequest {
 
     public Long getParentTaskId() { return parentTaskId; }
     public void setParentTaskId(Long parentTaskId) { this.parentTaskId = parentTaskId; }
+
+    public Long getSprintId() { return sprintId; }
+    public void setSprintId(Long sprintId) { this.sprintId = sprintId; }
 }

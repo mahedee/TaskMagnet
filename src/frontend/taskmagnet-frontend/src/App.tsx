@@ -7,12 +7,14 @@ import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import ProjectManager from './components/ProjectManager';
 import TaskManager from './components/TaskManager';
+import SprintManager from './components/SprintManager';
 import TaskStatusManager from './components/TaskStatusManager';
 import CategoryManager from './components/CategoryManager';
 import './App.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  console.log('ProtectedRoute check:', { isAuthenticated, user: user?.username, hasToken: !!user?.token });
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
@@ -27,6 +29,8 @@ const AppLayout: React.FC = () => {
         return <ProjectManager />;
       case 'tasks':
         return <TaskManager />;
+      case 'sprints':
+        return <SprintManager />;
       case 'task-statuses':
         return <TaskStatusManager />;
       case 'categories':

@@ -16,6 +16,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'projects', label: 'Projects', icon: '💼' },
     { id: 'tasks', label: 'Tasks', icon: '✅' },
+    { id: 'sprints', label: 'Sprint Planning', icon: '🏃‍♂️' },
     { id: 'task-statuses', label: 'Task Statuses', icon: '📋' },
     { id: 'categories', label: 'Categories', icon: '🏷️' }
   ];

@@ -21,17 +21,50 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Dashboard mounted, loading data...');
     loadDashboardData();
   }, []);
 
   const loadDashboardData = async () => {
     try {
+      console.log('Starting dashboard API calls...');
       setLoading(true);
-      const [projects, tasks, categoriesData] = await Promise.all([
-        projectService.getAll(),
-        taskService.getAll(),
-        categoryService.getAll(),
-      ]);
+      
+      // Test each API call individually to identify which one fails
+      console.log('📊 Calling projectService.getAll()...');
+      let projects, tasks, categoriesData;
+      
+      try {
+        projects = await projectService.getAll();
+        console.log('✅ Projects API successful:', projects.length, 'projects loaded');
+      } catch (error) {
+        console.error('❌ Projects API failed:', error);
+        throw new Error(`Projects API failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+
+      try {
+        console.log('📋 Calling taskService.getAll()...');
+        tasks = await taskService.getAll();
+        console.log('✅ Tasks API successful:', tasks.length, 'tasks loaded');
+      } catch (error) {
+        console.error('❌ Tasks API failed:', error);
+        throw new Error(`Tasks API failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+
+      try {
+        console.log('📁 Calling categoryService.getAll()...');
+        categoriesData = await categoryService.getAll();
+        console.log('✅ Categories API successful:', categoriesData.length, 'categories loaded');
+      } catch (error) {
+        console.error('❌ Categories API failed:', error);
+        throw new Error(`Categories API failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+
+      console.log('🎉 All API calls successful!', { 
+        projectsCount: projects.length, 
+        tasksCount: tasks.length, 
+        categoriesCount: categoriesData.length 
+      });
 
       const now = new Date();
       const dashboardStats: DashboardStats = {
@@ -50,6 +83,11 @@ const Dashboard: React.FC = () => {
       setCategories(categoriesData);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      console.log('Dashboard API error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        response: (error as any)?.response?.status,
+        url: (error as any)?.config?.url
+      });
     } finally {
       setLoading(false);
     }

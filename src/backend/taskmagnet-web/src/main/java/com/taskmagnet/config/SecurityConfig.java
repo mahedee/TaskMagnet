@@ -90,7 +90,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/categories").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/categories", "/api/categories/**").permitAll()
+                .requestMatchers("/api/projects", "/api/projects/**").permitAll()
+                .requestMatchers("/api/tasks", "/api/tasks/**").permitAll()
                 .requestMatchers("/api/task-statuses/**").authenticated()
                 .anyRequest().authenticated()
             )

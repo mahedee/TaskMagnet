@@ -34,6 +34,8 @@ public class TaskResponse {
     private String categoryName;
     private Long parentTaskId;
     private String parentTaskTitle;
+    private Long sprintId;
+    private String sprintName;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -115,6 +117,12 @@ public class TaskResponse {
 
     public String getParentTaskTitle() { return parentTaskTitle; }
     public void setParentTaskTitle(String parentTaskTitle) { this.parentTaskTitle = parentTaskTitle; }
+
+    public Long getSprintId() { return sprintId; }
+    public void setSprintId(Long sprintId) { this.sprintId = sprintId; }
+
+    public String getSprintName() { return sprintName; }
+    public void setSprintName(String sprintName) { this.sprintName = sprintName; }
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }

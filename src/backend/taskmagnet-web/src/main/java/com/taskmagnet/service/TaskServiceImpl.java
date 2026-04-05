@@ -4,6 +4,7 @@ import com.taskmagnet.dto.TaskRequest;
 import com.taskmagnet.dto.TaskResponse;
 import com.taskmagnet.entity.Category;
 import com.taskmagnet.entity.Project;
+import com.taskmagnet.entity.Sprint;
 import com.taskmagnet.entity.Task;
 import com.taskmagnet.entity.User;
 import com.taskmagnet.enums.Priority;
@@ -11,6 +12,7 @@ import com.taskmagnet.enums.TaskStatus;
 import com.taskmagnet.exception.ResourceNotFoundException;
 import com.taskmagnet.repository.CategoryRepository;
 import com.taskmagnet.repository.ProjectRepository;
+import com.taskmagnet.repository.SprintRepository;
 import com.taskmagnet.repository.TaskRepository;
 import com.taskmagnet.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -26,15 +28,18 @@ public class TaskServiceImpl implements ITaskService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final CategoryRepository categoryRepository;
+    private final SprintRepository sprintRepository;
 
     public TaskServiceImpl(TaskRepository taskRepository,
                             UserRepository userRepository,
                             ProjectRepository projectRepository,
-                            CategoryRepository categoryRepository) {
+                            CategoryRepository categoryRepository,
+                            SprintRepository sprintRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.categoryRepository = categoryRepository;
+        this.sprintRepository = sprintRepository;
     }
 
     @Override
@@ -151,6 +156,14 @@ public class TaskServiceImpl implements ITaskService {
         } else {
             task.setParentTask(null);
         }
+
+        if (request.getSprintId() != null) {
+            Sprint sprint = sprintRepository.findById(request.getSprintId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Sprint not found with id: " + request.getSprintId()));
+            task.setSprint(sprint);
+        } else {
+            task.setSprint(null);
+        }
     }
 
     private TaskResponse toResponse(Task task) {
@@ -194,6 +207,10 @@ public class TaskServiceImpl implements ITaskService {
         if (task.getParentTask() != null) {
             response.setParentTaskId(task.getParentTask().getId());
             response.setParentTaskTitle(task.getParentTask().getTitle());
+        }
+        if (task.getSprint() != null) {
+            response.setSprintId(task.getSprint().getId());
+            response.setSprintName(task.getSprint().getName());
         }
 
         return response;

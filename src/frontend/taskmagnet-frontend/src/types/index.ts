@@ -182,3 +182,43 @@ export interface TaskRequest {
   parentTaskId?: number;
 }
 
+// ─── Sprint ───────────────────────────────────────────────────────────────────
+
+export enum SprintStatus {
+  PLANNED = 'PLANNED',
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED'
+}
+
+export interface SprintResponse {
+  id: number;
+  name: string;
+  description?: string;
+  status: SprintStatus;
+  startDate: string;
+  endDate: string;
+  actualStartDate?: string;
+  actualEndDate?: string;
+  goals?: string;
+  projectId: number;
+  projectName?: string;
+  taskCount?: number;
+  completedTaskCount?: number;
+  totalEstimatedHours?: number;
+  totalActualHours?: number;
+  completionPercentage?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SprintRequest {
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  goals?: string;
+  projectId: number;
+}
+

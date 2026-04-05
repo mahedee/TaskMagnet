@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
@@ -74,6 +76,7 @@ public class Task extends BaseAuditEntity {
     // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_to_id")
+    @NotFound(action = NotFoundAction.IGNORE)
     private User assignedTo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -82,15 +85,23 @@ public class Task extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
+    @NotFound(action = NotFoundAction.IGNORE)
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @NotFound(action = NotFoundAction.IGNORE)
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_task_id")
+    @NotFound(action = NotFoundAction.IGNORE)
     private Task parentTask;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Sprint sprint;
 
     // Constructors
     public Task() {
@@ -173,6 +184,9 @@ public class Task extends BaseAuditEntity {
 
     public Task getParentTask() { return parentTask; }
     public void setParentTask(Task parentTask) { this.parentTask = parentTask; }
+
+    public Sprint getSprint() { return sprint; }
+    public void setSprint(Sprint sprint) { this.sprint = sprint; }
 
     // Utility methods
     public boolean isCompleted() {

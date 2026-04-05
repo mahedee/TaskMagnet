@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { sprintService } from '../services/sprintService';
 import { projectService } from '../services/projectService';
-import { taskService } from '../services/taskService';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   SprintResponse, 
@@ -10,7 +9,7 @@ import {
   TaskResponse, 
   SprintStatus 
 } from '../types';
-// import './SprintManager.css';
+import './SprintManager.css';
 
 const STATUS_COLORS: Record<SprintStatus, string> = {
   PLANNED: '#95a5a6',
@@ -43,7 +42,6 @@ const SprintManager: React.FC = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSprintForDetails, setSelectedSprintForDetails] = useState<SprintResponse | null>(null);
   const [sprintTasks, setSprintTasks] = useState<TaskResponse[]>([]);
-  const [availableTasks, setAvailableTasks] = useState<TaskResponse[]>([]);
 
   // Form state
   const [formData, setFormData] = useState<SprintRequest>(EMPTY_FORM);
@@ -185,7 +183,7 @@ const SprintManager: React.FC = () => {
   if (loading) {
     return (
       <div className="sprint-manager-loading">
-        <div className="loading-spinner"></div>
+        <div className="spinner"></div>
         <p>Loading sprints...</p>
       </div>
     );
@@ -193,12 +191,12 @@ const SprintManager: React.FC = () => {
 
   return (
     <div className="sprint-manager">
-      <div className="sprint-manager-header">
+      <header className="sprint-manager-header">
         <h1>Sprint Planning</h1>
         <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-          + Create Sprint
+          + New Sprint
         </button>
-      </div>
+      </header>
 
       {/* Filters */}
       <div className="sprint-filters">
@@ -208,201 +206,116 @@ const SprintManager: React.FC = () => {
             placeholder="Search sprints..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="form-input"
+            className="form-control"
           />
         </div>
-        <select 
-          value={selectedProject} 
-          onChange={(e) => setSelectedProject(e.target.value)}
-          className="form-select"
-        >
-          <option value="">All Projects</option>
-          {projects.map(project => (
-            <option key={project.id} value={project.id.toString()}>
-              {project.name}
-            </option>
-          ))}
-        </select>
-        <select 
-          value={selectedStatus} 
-          onChange={(e) => setSelectedStatus(e.target.value)}
-          className="form-select"
-        >
-          <option value="">All Statuses</option>
-          <option value="PLANNED">Planned</option>
-          <option value="ACTIVE">Active</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
-      </div>
-
-      {/* Sprint Table */}
-      <div className="sprint-table">
-        <div className="sprint-table-header">
-          <div className="col-id">Sprint ID</div>
-          <div className="col-name">Sprint Name</div>
-          <div className="col-status">Status</div>
-          <div className="col-project">Project</div>
-          <div className="col-duration">Duration</div>
-          <div className="col-progress">Progress</div>
-          <div className="col-actions">Actions</div>
-        </div>
-        <div className="sprint-table-body">
-          {filteredSprints.map(sprint => (
-            <div key={sprint.id} className="sprint-row">
-              <div className="col-id">
-                #{sprint.id}
-              </div>
-              <div className="col-name">
-                <div className="sprint-name">
-                  <div className="status-indicator" style={{ backgroundColor: getStatusColor(sprint.status) }}></div>
-                  <div className="name-content">
-                    <h4 title={sprint.name}>{truncateText(sprint.name, 50)}</h4>
-                    {sprint.description && (
-                      <p className="sprint-description" title={sprint.description}>
-                        {truncateText(sprint.description, 80)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="col-status">
-                <span className="status-badge" style={{ backgroundColor: getStatusColor(sprint.status) }}>
-                  {sprint.status}
-                </span>
-              </div>
-              <div className="col-project">{getProjectName(sprint.projectId)}</div>
-              <div className="col-duration">
-                <div className="duration-info">
-                  <div>{getDuration(sprint)}</div>
-                  <small>{formatDate(sprint.startDate)} - {formatDate(sprint.endDate)}</small>
-                </div>
-              </div>
-              <div className="col-progress">
-                <div className="progress-info">
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ width: `${sprint.completionPercentage || 0}%` }}
-                    ></div>
-                  </div>
-                  <small>{sprint.completionPercentage || 0}%</small>
-                </div>
-              </div>
-              <div className="col-actions">
-                <div className="action-buttons">
-                  <button 
-                    className="btn-details" 
-                    onClick={() => handleShowDetails(sprint)} 
-                    title="View Details"
-                  >
-                    📋
-                  </button>
-                  <button className="btn-edit" onClick={() => handleEdit(sprint)} title="Edit Sprint">
-                    ✏️
-                  </button>
-                  {sprint.status === 'PLANNED' && (
-                    <button className="btn-start" onClick={() => handleStart(sprint.id)} title="Start Sprint">
-                      ▶️
-                    </button>
-                  )}
-                  {sprint.status === 'ACTIVE' && (
-                    <button className="btn-complete" onClick={() => handleComplete(sprint.id)} title="Complete Sprint">
-                      ✅
-                    </button>
-                  )}
-                  <button className="btn-delete" onClick={() => handleDelete(sprint.id)} title="Delete Sprint">
-                    🗑️
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="filter-group">
+          <select
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="form-control"
+          >
+            <option value="">All Projects</option>
+            {projects.map(project => (
+              <option key={project.id} value={project.id.toString()}>{project.name}</option>
+            ))}
+          </select>
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="form-control"
+          >
+            <option value="">All Statuses</option>
+            <option value="PLANNED">Planned</option>
+            <option value="ACTIVE">Active</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
         </div>
       </div>
 
       {/* Create/Edit Form Modal */}
       {showForm && (
-        <div className="modal-overlay" onClick={resetForm}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal">
             <div className="modal-header">
-              <h2>{editingSprint ? 'Edit Sprint' : 'Create Sprint'}</h2>
-              <button className="btn-close" onClick={resetForm}>×</button>
+              <h2>{editingSprint ? 'Edit Sprint' : 'Create New Sprint'}</h2>
+              <button className="close-btn" onClick={resetForm}>×</button>
             </div>
             <form onSubmit={handleSubmit} className="sprint-form">
-              {error && <div className="error-message">{error}</div>}
-              <div className="form-group">
-                <label>Sprint Name *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>Project *</label>
-                <select
-                  value={formData.projectId}
-                  onChange={(e) => setFormData({ ...formData, projectId: Number(e.target.value) })}
-                  required
-                  className="form-select"
-                >
-                  <option value="">Select Project</option>
-                  {projects.map(project => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
+              {error && <div className="form-error">{error}</div>}
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Sprint Name *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Project *</label>
+                  <select
+                    className="form-control"
+                    value={formData.projectId || ''}
+                    onChange={(e) => setFormData({ ...formData, projectId: Number(e.target.value) })}
+                    required
+                  >
+                    <option value="">Select Project</option>
+                    {projects.map(project => (
+                      <option key={project.id} value={project.id}>{project.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Start Date *</label>
+                  <label className="form-label">Start Date *</label>
                   <input
                     type="date"
+                    className="form-control"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                     required
-                    className="form-input"
                   />
                 </div>
                 <div className="form-group">
-                  <label>End Date *</label>
+                  <label className="form-label">End Date *</label>
                   <input
                     type="date"
+                    className="form-control"
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                     required
-                    className="form-input"
                   />
                 </div>
               </div>
               <div className="form-group">
-                <label>Description</label>
+                <label className="form-label">Description</label>
                 <textarea
+                  className="form-control"
+                  rows={3}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="form-textarea"
-                  rows={3}
                 />
               </div>
               <div className="form-group">
-                <label>Sprint Goals</label>
+                <label className="form-label">Sprint Goals</label>
                 <textarea
+                  className="form-control"
+                  rows={3}
                   value={formData.goals}
                   onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
-                  className="form-textarea"
-                  rows={3}
                 />
               </div>
               <div className="form-actions">
-                <button type="button" onClick={resetForm} className="btn btn-secondary">
+                <button type="button" className="btn btn-secondary" onClick={resetForm}>
                   Cancel
                 </button>
-                <button type="submit" disabled={saving} className="btn btn-primary">
-                  {saving ? 'Saving...' : (editingSprint ? 'Update' : 'Create')}
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? 'Saving...' : editingSprint ? 'Update Sprint' : 'Create Sprint'}
                 </button>
               </div>
             </form>
@@ -410,44 +323,184 @@ const SprintManager: React.FC = () => {
         </div>
       )}
 
+      {/* Sprint List */}
+      <div className="sprints-list">
+        {filteredSprints.length === 0 ? (
+          <div className="no-sprints">
+            <span className="empty-icon">🏃</span>
+            <h3>No sprints found</h3>
+            <p>Create your first sprint to start planning!</p>
+            <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+              + New Sprint
+            </button>
+          </div>
+        ) : (
+          <div className="sprint-list">
+            <div className="sprint-list-header">
+              <div className="sprint-list-col sprint-list-col--icon"></div>
+              <div className="sprint-list-col sprint-list-col--name">Sprint</div>
+              <div className="sprint-list-col sprint-list-col--project">Project</div>
+              <div className="sprint-list-col sprint-list-col--status">Status</div>
+              <div className="sprint-list-col sprint-list-col--dates">Timeline</div>
+              <div className="sprint-list-col sprint-list-col--progress">Progress</div>
+              <div className="sprint-list-col sprint-list-col--actions">Actions</div>
+            </div>
+            {filteredSprints.map(sprint => (
+              <div key={sprint.id} className="sprint-list-item">
+                <div className="sprint-list-col sprint-list-col--icon">
+                  <span className="sprint-icon">🏃</span>
+                </div>
+                <div className="sprint-list-col sprint-list-col--name">
+                  <div className="sprint-name-info">
+                    <h3 className="sprint-name">{sprint.name}</h3>
+                    <span className="sprint-meta">#{sprint.id} · {getDuration(sprint)}</span>
+                    {sprint.description && (
+                      <p className="sprint-description">{truncateText(sprint.description, 80)}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="sprint-list-col sprint-list-col--project">
+                  <span className="sprint-project">{getProjectName(sprint.projectId)}</span>
+                </div>
+                <div className="sprint-list-col sprint-list-col--status">
+                  <span
+                    className="status-badge"
+                    style={{ backgroundColor: getStatusColor(sprint.status) }}
+                  >
+                    {sprint.status.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <div className="sprint-list-col sprint-list-col--dates">
+                  <div className="sprint-timeline">
+                    <div className="timeline-item">
+                      <small>Start: {formatDate(sprint.startDate)}</small>
+                    </div>
+                    <div className="timeline-item">
+                      <small>End: {formatDate(sprint.endDate)}</small>
+                    </div>
+                  </div>
+                </div>
+                <div className="sprint-list-col sprint-list-col--progress">
+                  <div className="progress-info">
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${sprint.completionPercentage || 0}%` }}
+                      ></div>
+                    </div>
+                    <small>{sprint.completionPercentage || 0}%</small>
+                  </div>
+                </div>
+                <div className="sprint-list-col sprint-list-col--actions">
+                  <button
+                    className="btn-icon"
+                    onClick={() => handleShowDetails(sprint)}
+                    title="View Details"
+                  >
+                    📋
+                  </button>
+                  <button
+                    className="btn-icon"
+                    onClick={() => handleEdit(sprint)}
+                    title="Edit Sprint"
+                  >
+                    ✏️
+                  </button>
+                  {sprint.status === 'PLANNED' && (
+                    <button
+                      className="btn-icon btn-icon--success"
+                      onClick={() => handleStart(sprint.id)}
+                      title="Start Sprint"
+                    >
+                      ▶
+                    </button>
+                  )}
+                  {sprint.status === 'ACTIVE' && (
+                    <button
+                      className="btn-icon btn-icon--success"
+                      onClick={() => handleComplete(sprint.id)}
+                      title="Complete Sprint"
+                    >
+                      ✔
+                    </button>
+                  )}
+                  <button
+                    className="btn-icon btn-icon--danger"
+                    onClick={() => handleDelete(sprint.id)}
+                    title="Delete Sprint"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Details Modal */}
       {showDetailsModal && selectedSprintForDetails && (
         <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
-          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+          <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Sprint Details: {selectedSprintForDetails.name}</h2>
-              <button className="btn-close" onClick={() => setShowDetailsModal(false)}>×</button>
+              <h2>Sprint Details</h2>
+              <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
             </div>
             <div className="sprint-details">
               <div className="detail-section">
-                <h3>Sprint Information</h3>
+                <h3>{selectedSprintForDetails.name}</h3>
                 <div className="detail-grid">
-                  <div><strong>Status:</strong> 
-                    <span className="status-badge" style={{ backgroundColor: getStatusColor(selectedSprintForDetails.status), marginLeft: '8px' }}>
-                      {selectedSprintForDetails.status}
+                  <div className="detail-cell">
+                    <span className="detail-label">Status</span>
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: getStatusColor(selectedSprintForDetails.status) }}
+                    >
+                      {selectedSprintForDetails.status.replace(/_/g, ' ')}
                     </span>
                   </div>
-                  <div><strong>Project:</strong> {getProjectName(selectedSprintForDetails.projectId)}</div>
-                  <div><strong>Duration:</strong> {getDuration(selectedSprintForDetails)}</div>
-                  <div><strong>Progress:</strong> {selectedSprintForDetails.completionPercentage || 0}%</div>
-                  <div><strong>Start Date:</strong> {formatDate(selectedSprintForDetails.startDate)}</div>
-                  <div><strong>End Date:</strong> {formatDate(selectedSprintForDetails.endDate)}</div>
+                  <div className="detail-cell">
+                    <span className="detail-label">Project</span>
+                    <span className="detail-value">{getProjectName(selectedSprintForDetails.projectId)}</span>
+                  </div>
+                  <div className="detail-cell">
+                    <span className="detail-label">Duration</span>
+                    <span className="detail-value">{getDuration(selectedSprintForDetails)}</span>
+                  </div>
+                  <div className="detail-cell">
+                    <span className="detail-label">Progress</span>
+                    <span className="detail-value">{selectedSprintForDetails.completionPercentage || 0}%</span>
+                  </div>
+                  <div className="detail-cell">
+                    <span className="detail-label">Start Date</span>
+                    <span className="detail-value">{formatDate(selectedSprintForDetails.startDate)}</span>
+                  </div>
+                  <div className="detail-cell">
+                    <span className="detail-label">End Date</span>
+                    <span className="detail-value">{formatDate(selectedSprintForDetails.endDate)}</span>
+                  </div>
                   {selectedSprintForDetails.actualStartDate && (
-                    <div><strong>Actual Start:</strong> {formatDate(selectedSprintForDetails.actualStartDate)}</div>
+                    <div className="detail-cell">
+                      <span className="detail-label">Actual Start</span>
+                      <span className="detail-value">{formatDate(selectedSprintForDetails.actualStartDate)}</span>
+                    </div>
                   )}
                   {selectedSprintForDetails.actualEndDate && (
-                    <div><strong>Actual End:</strong> {formatDate(selectedSprintForDetails.actualEndDate)}</div>
+                    <div className="detail-cell">
+                      <span className="detail-label">Actual End</span>
+                      <span className="detail-value">{formatDate(selectedSprintForDetails.actualEndDate)}</span>
+                    </div>
                   )}
                 </div>
                 {selectedSprintForDetails.description && (
                   <div className="detail-item">
-                    <strong>Description:</strong>
+                    <strong>Description</strong>
                     <p>{selectedSprintForDetails.description}</p>
                   </div>
                 )}
                 {selectedSprintForDetails.goals && (
                   <div className="detail-item">
-                    <strong>Sprint Goals:</strong>
+                    <strong>Sprint Goals</strong>
                     <p>{selectedSprintForDetails.goals}</p>
                   </div>
                 )}
@@ -460,9 +513,7 @@ const SprintManager: React.FC = () => {
                       <div key={task.id} className="task-item">
                         <span className="task-id">#{task.id}</span>
                         <span className="task-title">{task.title}</span>
-                        <span className="task-status" style={{ backgroundColor: getStatusColor(task.status as any) }}>
-                          {task.status.replace(/_/g, ' ')}
-                        </span>
+                        <span className="task-status">{task.status.replace(/_/g, ' ')}</span>
                       </div>
                     ))}
                   </div>

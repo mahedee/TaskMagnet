@@ -14,7 +14,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'projects', label: 'Projects', icon: '📁' },
+    { id: 'projects', label: 'Projects', icon: '💼' },
     { id: 'tasks', label: 'Tasks', icon: '✅' },
     { id: 'task-statuses', label: 'Task Statuses', icon: '📋' },
     { id: 'categories', label: 'Categories', icon: '🏷️' }

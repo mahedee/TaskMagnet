@@ -261,7 +261,7 @@ const ProjectManager: React.FC = () => {
       <div className="projects-list">
         {projects.length === 0 ? (
           <div className="no-projects">
-            <span className="empty-icon">📁</span>
+            <span className="empty-icon">💼</span>
             <h3>No projects found</h3>
             <p>Create your first project to get started!</p>
             <button className="btn btn-primary" onClick={() => setShowForm(true)}>
@@ -282,7 +282,7 @@ const ProjectManager: React.FC = () => {
             {projects.map(project => (
               <div key={project.id} className="project-list-item">
                 <div className="project-list-col project-list-col--icon">
-                  <span className="project-icon">📁</span>
+                  <span className="project-icon">💼</span>
                 </div>
                 <div className="project-list-col project-list-col--name">
                   <div className="project-name-info">

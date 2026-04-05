@@ -56,6 +56,8 @@ const TaskManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedTaskForDetails, setSelectedTaskForDetails] = useState<TaskResponse | null>(null);
 
   // Form state
   const [formData, setFormData] = useState<TaskRequest>(EMPTY_FORM(0));
@@ -166,6 +168,21 @@ const TaskManager: React.FC = () => {
     setError('');
   };
 
+  const handleShowDetails = (task: TaskResponse) => {
+    setSelectedTaskForDetails(task);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedTaskForDetails(null);
+    setShowDetailsModal(false);
+  };
+
+  const truncateText = (text: string, maxLength: number = 200): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
   const getStatusColor = (status: string): string => {
     return STATUS_COLORS[status] ?? '#95a5a6';
   };
@@ -200,10 +217,11 @@ const TaskManager: React.FC = () => {
     return matchesSearch && matchesProject && matchesStatus && matchesPriority;
   });
 
-  const tasksByStatus = KANBAN_COLUMNS.reduce<Record<string, TaskResponse[]>>((acc, status) => {
-    acc[status] = filteredTasks.filter(t => t.status === status);
-    return acc;
-  }, {});
+  // No need to group by status for grid view
+  // const tasksByStatus = KANBAN_COLUMNS.reduce<Record<string, TaskResponse[]>>((acc, status) => {
+  //   acc[status] = filteredTasks.filter(t => t.status === status);
+  //   return acc;
+  // }, {});
 
   if (loading) {
     return (
@@ -400,71 +418,203 @@ const TaskManager: React.FC = () => {
         </div>
       )}
 
-      {/* Kanban Board */}
-      <div className="kanban-board">
-        {KANBAN_COLUMNS.map(status => (
-          <div key={status} className="kanban-column">
-            <div className="kanban-header" style={{ borderTopColor: STATUS_COLORS[status] }}>
-              <h3>{status.replace(/_/g, ' ')}</h3>
-              <span className="task-count">{tasksByStatus[status]?.length ?? 0}</span>
+      {/* List View */}
+      <div className="task-list-container">
+        <div className="task-list-header">
+          <h2>All Tasks ({filteredTasks.length})</h2>
+        </div>
+        
+        {filteredTasks.length === 0 ? (
+          <div className="empty-list">
+            <p>No tasks found matching your filters.</p>
+          </div>
+        ) : (
+          <div className="task-table">
+            <div className="task-table-header">
+              <div className="col-id">Task ID</div>
+              <div className="col-summary">Task Summary</div>
+              <div className="col-status">Status</div>
+              <div className="col-assignee">Assignee</div>
+              <div className="col-due">Due Date</div>
+              <div className="col-details">Details</div>
+              <div className="col-edit">Edit</div>
+              <div className="col-delete">Delete</div>
             </div>
-            <div className="kanban-tasks">
-              {(tasksByStatus[status] ?? []).map(task => (
-                <div key={task.id} className={`task-card${isOverdue(task) ? ' overdue' : ''}`}>
-                  <div className="task-card-header">
-                    <h4>{task.title}</h4>
-                    <div className="task-actions">
-                      <button className="btn-icon" onClick={() => handleEdit(task)} title="Edit">✏️</button>
-                      <button className="btn-icon" onClick={() => handleDelete(task.id)} title="Delete">🗑️</button>
+            <div className="task-table-body">
+              {filteredTasks.map(task => (
+                <div key={task.id} className={`task-row${isOverdue(task) ? ' overdue' : ''}`}>
+                  <div className="col-id">
+                    #{task.id}
+                  </div>
+                  <div className="col-summary">
+                    <div className="task-summary">
+                      <div className="status-indicator" style={{ backgroundColor: getStatusColor(task.status) }}></div>
+                      <div className="summary-content">
+                        <h4 title={task.title}>{truncateText(task.title)}</h4>
+                        {task.description && (
+                          <p className="task-description" title={task.description}>
+                            {truncateText(task.description, 100)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="task-card-body">
-                    {task.description && <p className="task-description">{task.description}</p>}
-                    <div className="task-meta">
-                      <div className="meta-item"><strong>Project:</strong> {getProjectName(task.projectId)}</div>
-                      <div className="meta-item"><strong>Assignee:</strong> {getAssigneeName(task.assignedToId)}</div>
-                      {task.dueDate && (
-                        <div className="meta-item">
-                          <strong>Due:</strong> {new Date(task.dueDate).toLocaleDateString()}
-                          {isOverdue(task) && <span className="overdue-indicator"> ⚠️</span>}
-                        </div>
-                      )}
-                      {task.estimatedHours && (
-                        <div className="meta-item">
-                          <strong>Est:</strong> {task.estimatedHours}h
-                          {task.actualHours ? ` / Actual: ${task.actualHours}h` : ''}
-                        </div>
-                      )}
-                    </div>
-                    <div className="task-badges">
-                      <span className="priority-badge" style={{ backgroundColor: PRIORITY_COLORS[task.priority] ?? '#95a5a6' }}>
-                        {task.priority}
-                      </span>
-                    </div>
-                    <div className="status-actions">
-                      {task.status === 'NOT_STARTED' && (
-                        <button className="btn-status" onClick={() => handleStatusChange(task.id, 'IN_PROGRESS')}>▶️ Start</button>
-                      )}
-                      {task.status === 'IN_PROGRESS' && (
-                        <button className="btn-status" onClick={() => handleStatusChange(task.id, 'IN_REVIEW')}>🔍 Review</button>
-                      )}
-                      {task.status === 'IN_REVIEW' && (
-                        <button className="btn-status" onClick={() => handleStatusChange(task.id, 'COMPLETED')}>✅ Complete</button>
-                      )}
-                      {(task.status === 'IN_PROGRESS' || task.status === 'IN_REVIEW') && (
-                        <button className="btn-status" onClick={() => handleStatusChange(task.id, 'NOT_STARTED')}>⬅️ Reset</button>
-                      )}
-                    </div>
+                  <div className="col-status">
+                    <span className="status-badge" style={{ backgroundColor: getStatusColor(task.status) }}>
+                      {task.status.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <div className="col-assignee">{getAssigneeName(task.assignedToId)}</div>
+                  <div className="col-due">
+                    {task.dueDate ? (
+                      <>
+                        {new Date(task.dueDate).toLocaleDateString()}
+                        {isOverdue(task) && <span className="overdue-indicator"> ⚠️</span>}
+                      </>
+                    ) : (
+                      <span className="no-date">-</span>
+                    )}
+                  </div>
+                  <div className="col-details">
+                    <button 
+                      className="btn-details" 
+                      onClick={() => handleShowDetails(task)} 
+                      title="View Details"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <div className="col-edit">
+                    <button className="btn-edit" onClick={() => handleEdit(task)} title="Edit Task">
+                      ✏️
+                    </button>
+                  </div>
+                  <div className="col-delete">
+                    <button className="btn-delete" onClick={() => handleDelete(task.id)} title="Delete Task">
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))}
-              {(tasksByStatus[status]?.length ?? 0) === 0 && (
-                <div className="empty-column"><p>No tasks</p></div>
-              )}
             </div>
           </div>
-        ))}
+        )}
       </div>
+
+      {/* Task Details Modal */}
+      {showDetailsModal && selectedTaskForDetails && (
+        <div className="modal-overlay">
+          <div className="modal details-modal">
+            <div className="modal-header">
+              <h2>📋 Task Details</h2>
+              <button className="close-btn" onClick={handleCloseDetails}>×</button>
+            </div>
+            <div className="task-details">
+              <div className="details-grid">
+                <div className="detail-section">
+                  <div className="detail-item">
+                    <span className="detail-label">🆔 Task ID:</span>
+                    <span className="detail-value">#{selectedTaskForDetails.id}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">📝 Title:</span>
+                    <span className="detail-value">{selectedTaskForDetails.title}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">📄 Description:</span>
+                    <span className="detail-value">
+                      {selectedTaskForDetails.description || 'No description provided'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="detail-section">
+                  <div className="detail-item">
+                    <span className="detail-label">📊 Status:</span>
+                    <span className="detail-value">
+                      <span className="status-badge" style={{ backgroundColor: getStatusColor(selectedTaskForDetails.status) }}>
+                        {selectedTaskForDetails.status.replace(/_/g, ' ')}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">⚡ Priority:</span>
+                    <span className="detail-value">
+                      <span className="priority-badge" style={{ backgroundColor: PRIORITY_COLORS[selectedTaskForDetails.priority] ?? '#95a5a6' }}>
+                        {selectedTaskForDetails.priority}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">💼 Project:</span>
+                    <span className="detail-value">{getProjectName(selectedTaskForDetails.projectId)}</span>
+                  </div>
+                </div>
+                
+                <div className="detail-section">
+                  <div className="detail-item">
+                    <span className="detail-label">👤 Assigned To:</span>
+                    <span className="detail-value">{getAssigneeName(selectedTaskForDetails.assignedToId)}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">👨‍💼 Created By:</span>
+                    <span className="detail-value">{getAssigneeName(selectedTaskForDetails.createdById)}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">📅 Due Date:</span>
+                    <span className="detail-value">
+                      {selectedTaskForDetails.dueDate ? (
+                        <>
+                          {new Date(selectedTaskForDetails.dueDate).toLocaleDateString()}
+                          {isOverdue(selectedTaskForDetails) && <span className="overdue-indicator"> ⚠️ Overdue</span>}
+                        </>
+                      ) : (
+                        'No due date set'
+                      )}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="detail-section">
+                  <div className="detail-item">
+                    <span className="detail-label">⏰ Estimated Hours:</span>
+                    <span className="detail-value">
+                      {selectedTaskForDetails.estimatedHours ? `${selectedTaskForDetails.estimatedHours} hours` : 'Not specified'}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">⏱️ Actual Hours:</span>
+                    <span className="detail-value">
+                      {selectedTaskForDetails.actualHours ? `${selectedTaskForDetails.actualHours} hours` : 'Not tracked yet'}
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">🏷️ Category:</span>
+                    <span className="detail-value">
+                      {selectedTaskForDetails.categoryId && categories.length > 0
+                        ? categories.find(c => c.id === selectedTaskForDetails.categoryId)?.name || 'Unknown Category'
+                        : 'No category assigned'
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="details-actions">
+                <button className="btn btn-primary" onClick={() => {
+                  handleEdit(selectedTaskForDetails);
+                  handleCloseDetails();
+                }}>
+                  ✏️ Edit Task
+                </button>
+                <button className="btn btn-secondary" onClick={handleCloseDetails}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
